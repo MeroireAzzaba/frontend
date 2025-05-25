@@ -1,0 +1,29 @@
+<%- include('./header') %>
+  <h2>All Centers</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% centers.forEach(center => { %>
+        <tr>
+          <td><%= center.name %></td>
+          <td><%= center.address %></td>
+          <td><%= new Date(center.created_at).toLocaleString() %></td>
+          <td class="actions">
+            <a href="/centers/<%= center.id %>" class="btn view">View</a>
+            <a href="/centers/<%= center.id %>/edit" class="btn edit">Edit</a>
+            <form action="/centers/<%= center.id %>?_method=DELETE" method="POST" class="delete-form">
+              <button type="submit" class="btn delete">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+<%- include('./footer') %>

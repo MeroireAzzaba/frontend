@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  id           String      @id
+  center_id    String      @unique
+  username     String      @unique
+  password     String
+  phone_number String      @unique
+  created_at   DateTime    @default(now())
+  center       center      @relation(fields: [center_id], references: [id])
+  admin_log    admin_log[]
+}
+
+model admin_log {
+  id          String      @id
+  admin_id    String
+  action_type Action_type
+  target_type Target
+  target_id   String
+  created_at  DateTime    @default(now())
+  admin       admin       @relation(fields: [admin_id], references: [id])
+}
+
+model blood_bag {
+  id                                        String            @id
+  origin                                    String
+  current_location                          String
+  phenotype                                 String
+  blood_type                                Blood_type
+  nature                                    Nature
+  bag_number                                Int
+  bag_taken_date                            DateTime
+  volume                                    Int
+  expiration_date                           DateTime
+  donor_id                                  String
+  created_at                                DateTime          @default(now())
+  center_blood_bag_current_locationTocenter center            @relation("blood_bag_current_locationTocenter", fields: [current_location], references: [id])
+  donor                                     donor             @relation(fields: [donor_id], references: [id])
+  center_blood_bag_originTocenter           center            @relation("blood_bag_originTocenter", fields: [origin], references: [id])
+  distributed_bag                           distributed_bag[]
+  user_log                                  user_log[]
+
+  @@unique([origin, bag_number])
+}
+
+model center {
+  id                                           String        @id
+  name                                         String        @unique
+  address                                      String        @unique
+  created_at                                   DateTime      @default(now())
+  admin                                        admin?
+  blood_bag_blood_bag_current_locationTocenter blood_bag[]   @relation("blood_bag_current_locationTocenter")
+  blood_bag_blood_bag_originTocenter           blood_bag[]   @relation("blood_bag_originTocenter")
+  distributor                                  distributor[]
+  request_request_receiver_idTocenter          request[]     @relation("request_receiver_idTocenter")
+  request_request_sender_idTocenter            request[]     @relation("request_sender_idTocenter")
+  user                                         user[]
+}
+
+model distributed_bag {
+  distribution_id String
+  bag_id          String
+  blood_bag       blood_bag    @relation(fields: [bag_id], references: [id])
+  distribution    distribution @relation(fields: [distribution_id], references: [id])
+
+  @@unique([distribution_id, bag_id])
+}
+
+model distribution {
+  id              String            @id
+  request_id      String            @unique
+  user_id         String
+  distributor_id  String
+  created_at      DateTime          @default(now())
+  distributed_bag distributed_bag[]
+  distributor     distributor       @relation(fields: [distributor_id], references: [id])
+  request         request           @relation(fields: [request_id], references: [id])
+  user            user              @relation(fields: [user_id], references: [id])
+}
+
+model distributor {
+  id           String         @id
+  center_id    String
+  first_name   String
+  last_name    String
+  phone_number String         @unique
+  created_at   DateTime       @default(now())
+  distribution distribution[]
+  center       center         @relation(fields: [center_id], references: [id])
+}
+
+model donor {
+  id           String      @id
+  first_name   String
+  last_name    String
+  phone_number String      @unique
+  created_at   DateTime    @default(now())
+  blood_bag    blood_bag[]
+}
+
+model request {
+  id                                 String        @id
+  sender_id                          String
+  receiver_id                        String
+  status                             Status
+  volume                             Int
+  user_id                            String
+  number_of_bags                     Int
+  blood_type                         Blood_type
+  nature                             Nature
+  reason_for_disapproval             String?
+  created_at                         DateTime      @default(now())
+  distribution                       distribution?
+  center_request_receiver_idTocenter center        @relation("request_receiver_idTocenter", fields: [receiver_id], references: [id])
+  center_request_sender_idTocenter   center        @relation("request_sender_idTocenter", fields: [sender_id], references: [id])
+  user                               user          @relation(fields: [user_id], references: [id])
+}
+
+model user {
+  id           String         @id
+  center_id    String
+  username     String         @unique
+  password     String
+  phone_number String         @unique
+  first_name   String
+  last_name    String
+  created_at   DateTime       @default(now())
+  distribution distribution[]
+  request      request[]
+  center       center         @relation(fields: [center_id], references: [id])
+  user_log     user_log[]
+}
+
+model user_log {
+  id          String      @id
+  user_id     String
+  bag_id      String
+  action_type Action_type
+  reason      String?
+  created_at  DateTime    @default(now())
+  blood_bag   blood_bag   @relation(fields: [bag_id], references: [id])
+  user        user        @relation(fields: [user_id], references: [id])
+}
+
+enum Action_type {
+  create
+  edit
+  delete
+}
+
+enum Blood_type {
+  A_positive
+  A_negative
+  B_positive
+  B_negative
+  AB_positive
+  AB_negative
+  O_positive
+  O_negative
+}
+
+enum Nature {
+  Plaquette
+  CGR
+  PFC
+}
+
+enum Status {
+  pending
+  approved
+  denied
+}
+
+enum Target {
+  user
+  distributor
+}

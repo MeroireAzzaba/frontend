@@ -1,0 +1,15 @@
+<%- include('./header') %>
+  <h2>Edit Center</h2>
+  <form action="/centers/<%= center.id %>?_method=PUT" method="POST">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" value="<%= center.name %>" required>
+    </div>
+    <div class="form-group">
+      <label for="address">Address:</label>
+      <textarea id="address" name="address" required><%= center.address %></textarea>
+    </div>
+    <button type="submit" class="btn submit">Update Center</button>
+    <a href="/centers" class="btn cancel">Cancel</a>
+  </form>
+<%- include('./footer') %>
