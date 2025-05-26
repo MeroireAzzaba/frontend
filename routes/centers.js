@@ -4,9 +4,10 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 // List all centers
-router.get('/centers', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const centers = await prisma.center.findMany();
+    const resFetch = await fetch('http://localhost:3000/center')
+    const centers = await resFetch.json()
     res.render('centers/index', { centers });
   } catch (error) {
     console.error(error);
@@ -15,9 +16,9 @@ router.get('/centers', async (req, res) => {
 });
 
 // Show form to create new center
-// router.get('/centers/new', (req, res) => {
-//   res.render('centers/new');
-// });
+router.get('/centers/new', (req, res) => {
+  res.render('centers/new');
+});
 
 // Create new center
 // router.post('/centers', async (req, res) => {
@@ -34,11 +35,10 @@ router.get('/centers', async (req, res) => {
 // });
 
 // Show center details
-router.get('/centers/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const center = await prisma.center.findUnique({
-      where: { id: req.params.id }
-    });
+    const resFetch = await fetch(`http://localhost:3000/center/edit?id=${req.params.id}`)
+    const center = await resFetch.json()
     res.render('centers/show', { center });
   } catch (error) {
     console.error(error);
@@ -47,11 +47,11 @@ router.get('/centers/:id', async (req, res) => {
 });
 
 // Show edit form
-router.get('/centers/:id/edit', async (req, res) => {
+router.get('/:id/edit', async (req, res) => {
+  console.log(req.url)
   try {
-    const center = await prisma.center.findUnique({
-      where: { id: req.params.id }
-    });
+    const resFetch = await fetch(`http://localhost:3000/center/edit?id=${req.params.id}`)
+    const center = await resFetch.json()
     res.render('centers/edit', { center });
   } catch (error) {
     console.error(error);

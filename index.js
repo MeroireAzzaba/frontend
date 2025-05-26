@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 
 // Routes
 const centerRoutes = require('./routes/centers');
-app.use('/', centerRoutes);
+app.use('/centers', centerRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
